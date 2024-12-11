@@ -1,0 +1,44 @@
+From c58f8f194f55cf2a20e22d05be088449e55819e5 Mon Sep 17 00:00:00 2001
+From: lee <shwan255143@gmail.com>
+Date: Tue, 8 Oct 2024 09:35:17 +0800
+Subject: [PATCH] Try
+
+---
+ kernel/sys.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+
+diff --git a/kernel/sys.c b/kernel/sys.c
+index 5fd54bf0e886..7a6681d53c0b 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -2790,4 +2790,27 @@ COMPAT_SYSCALL_DEFINE1(sysinfo, struct compat_sysinfo __user *, info)
+ 		return -EFAULT;
+ 	return 0;
+ }
++#include <linux/kernel.h>
++#include <linux/linkage.h>
++#include <linux/syscalls.h>
++#include <linux/uaccess.h>
++SYSCALL_DEFINE2(revstr, char __user *, src, size_t,  n){
++	char kstr[256];
++	char revs[256];
++
++	if (copy_from_user(kstr, src, n)){
++		return -EFAULT;
++	}
++	kstr[n] = '\0';
++	printk("Ori: %s\n", kstr);
++	for( int i=0; i<n; i++){
++		revs[i] = kstr[n-1-i];
++	}
++	revs[n] = '\0';
++	printk("Rev: %s\n",revs);
++	if (copy_to_user(src,revs,n)){
++		return -EFAULT;
++	}
++	return 0;
++}
+ #endif /* CONFIG_COMPAT */
+-- 
+2.43.0
+
